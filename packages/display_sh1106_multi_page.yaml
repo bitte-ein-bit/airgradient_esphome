@@ -183,7 +183,17 @@ display:
         then:
           - if:
               condition:
-                switch.is_off: display_blank_page
+                and:
+                  - or:
+                    - switch.is_on: display_ag_default_page
+                    - switch.is_on: display_summary_pages
+                    - switch.is_on: display_air_quality_page
+                    - switch.is_on: display_air_temp_page
+                    - switch.is_on: display_voc_page
+                    - switch.is_on: display_combo_page
+                    - switch.is_on: display_boot_page
+                  # If the blank page switch is on, only display the blank page, otherwise, rotate to next page
+                  - switch.is_off: display_blank_page
               then:
                 - display.page.show_next: oled_display
                 - component.update: oled_display
@@ -204,8 +214,19 @@ interval:
     then:
       - if:
           condition:
-            # If the blank page switch is on, only display the blank page, otherwise, rotate to next page
-            switch.is_on: display_blank_page
+            # if no item is turned on, then turn on the blank page
+            # otherwise it will crash-loop
+            or:
+              - and:
+                - switch.is_off: display_ag_default_page
+                - switch.is_off: display_summary_pages
+                - switch.is_off: display_air_quality_page
+                - switch.is_off: display_air_temp_page
+                - switch.is_off: display_voc_page
+                - switch.is_off: display_combo_page
+                - switch.is_off: display_boot_page
+              # If the blank page switch is on, only display the blank page, otherwise, rotate to next page
+              - switch.is_on: display_blank_page
           then:
             - display.page.show: blank
             - component.update: oled_display
